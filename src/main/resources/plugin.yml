@@ -1,3 +1,8 @@
-main: com.github.supersimple33.howlers.App
 name: Howlers
+author: supersimple33
+description: This plugin sets wolves to howl at the moon
 version: 0.1
+
+api-version: 1.17
+
+main: com.github.supersimple33.howlers.Woof
