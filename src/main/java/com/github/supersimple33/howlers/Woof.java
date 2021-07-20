@@ -15,11 +15,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 */
 public class Woof extends JavaPlugin {
 
-    @Override
     @SuppressWarnings("checkstyle:magicnumber")
-    public void onEnable() {
-        getLogger().info("Starting up Woof");
-
+    private void setTask() {
         BukkitRunnable runnable = new BukkitRunnable() {
 
             @Override
@@ -34,27 +31,32 @@ public class Woof extends JavaPlugin {
                     int days = (int) world.getFullTime() / 24000;
                     int phase = days % 8;
                     // Check for right moon phase and iterate entities
-                    if (phase == 8) {
+                    if (phase == 0) {
                         List<Entity> ents = world.getEntities();
                         for (Entity ent : ents) {
                             // If the entity is a wolf, generate random and play howl sound
-                            if (ent.getType() == EntityType.WOLF && Math.random() > 0.2) { // tune to adjust freq
+                            if (ent.getType() == EntityType.WOLF && Math.random() > 0.4) { // tune to adjust freq
                                 // may need some tunning could also play only to nearby players, refactor for loop
                                 for (Player player : server.getOnlinePlayers()) {
-                                    player.playSound(ent.getLocation(), Sound.ENTITY_WOLF_HOWL, 1.0f, 1.0f);
+                                    player.playSound(ent.getLocation(), Sound.ENTITY_WOLF_HOWL, 2.0f, 1.0f);
                                 }
                             }
                         }
                     }
                 }
-
-                // Set the runnable to repeat
-                int nextDelay = (int) ((Math.random() * 801) + 400);
-                this.runTaskLater(Woof.this, nextDelay);
+                setTask();
             }
         };
 
-        runnable.runTaskLater(this, 1200);
+        // Set the runnable to repeat
+        int nextDelay = (int) ((Math.random() * 401) + 300);
+        runnable.runTaskLater(this, nextDelay);
+    }
+
+    @Override
+    public void onEnable() {
+        getLogger().info("Starting up Woof");
+        setTask();
     }
 
     @Override
