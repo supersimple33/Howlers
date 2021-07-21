@@ -5,6 +5,8 @@ import java.util.List;
 import org.bukkit.Server;
 import org.bukkit.Sound;
 import org.bukkit.World;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -18,16 +20,18 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class Woof extends JavaPlugin {
 
     // Vars
-    double barkChance;
-    int delay;
-    int variation;
-    float volume;
-    float pitchOffset;
-    List<Integer> phases;
+    // Should have getter methods
+    private double barkChance;
+    private int delay;
+    private int variation;
+    private float volume;
+    private float pitchOffset;
+    private List<Integer> phases;
 
     // Setup the BukkitRunnable that will be used to play the sound.
     @SuppressWarnings("checkstyle:magicnumber")
     private void setTask() {
+        // Create runnable
         BukkitRunnable runnable = new BukkitRunnable() {
 
             @Override
@@ -41,8 +45,11 @@ public class Woof extends JavaPlugin {
                 if (time > 12300 && time < 23850) {
                     int days = (int) world.getFullTime() / 24000;
                     int phase = days % 8;
+
                     // Check for right moon phase and iterate entities
                     if (phases.contains(phase)) {
+
+                        // Get a list of entities and loop through them
                         List<Entity> ents = world.getEntities();
                         for (Entity ent : ents) {
                             // If the entity is a wolf, generate random and play howl sound
@@ -66,6 +73,35 @@ public class Woof extends JavaPlugin {
     }
 
     @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        // Check for permissions and that the command is correct
+        if (command.getName().equalsIgnoreCase("hwreload")) {
+
+            if (sender.hasPermission("howlers.reload")) {
+                sender.sendMessage("Starting Reload of Howlers Config");
+
+                // Reload and grab the config
+                reloadConfig();
+                FileConfiguration config = getConfig();
+
+                // Threadsafe?
+                // Set vars to their new values
+                barkChance = config.getDouble("ChanceOfBark");
+                delay = config.getInt("Delay");
+                variation = config.getInt("TimeVariation");
+                volume = (float) config.getDouble("Volume");
+                pitchOffset = (float) config.getDouble("PitchOffset");
+                phases = config.getIntegerList("Phases");
+
+                getLogger().info("Howlers Config Reloaded");
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    @SuppressWarnings("checkstyle:magicnumber")
     public void onEnable() {
         // Set up config defaults
         FileConfiguration config = getConfig();
@@ -74,7 +110,7 @@ public class Woof extends JavaPlugin {
         config.addDefault("TimeVariation", 401); // max amount of random time to add between events
         config.addDefault("Volume", 2.0); // volume of each howl
         config.addDefault("PitchOffset", 0.2);
-        config.addDefault("Phases", Arrays.asList(new int[]{0})); // which moon phases to play on
+        config.addDefault("Phases", Arrays.asList(new Integer(0))); // which moon phases to play on
 
         // Save/Setup the config
         config.options().copyDefaults(true);
@@ -86,7 +122,7 @@ public class Woof extends JavaPlugin {
         variation = config.getInt("TimeVariation");
         volume = (float) config.getDouble("Volume");
         pitchOffset = (float) config.getDouble("PitchOffset");
-        phases = config.getIntegerList("Phases");        
+        phases = config.getIntegerList("Phases");
 
         setTask();
         getLogger().info("Howlers Is Ready");
