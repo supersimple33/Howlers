@@ -86,18 +86,22 @@ public class Woof extends JavaPlugin {
 
                 // Threadsafe?
                 // Set vars to their new values
-                barkChance = config.getDouble("ChanceOfBark");
-                delay = config.getInt("Delay");
-                variation = config.getInt("TimeVariation");
-                volume = (float) config.getDouble("Volume");
-                pitchOffset = (float) config.getDouble("PitchOffset");
-                phases = config.getIntegerList("Phases");
+                loadConfigVariables(config);
 
                 getLogger().info("Howlers Config Reloaded");
                 return true;
             }
         }
         return false;
+    }
+
+    private void loadConfigVariables(FileConfiguration config) {
+        this.barkChance = config.getDouble("ChanceOfBark");
+        this.delay = config.getInt("Delay");
+        this.variation = config.getInt("TimeVariation");
+        this.volume = (float) config.getDouble("Volume");
+        this.pitchOffset = (float) config.getDouble("PitchOffset");
+        this.phases = config.getIntegerList("Phases");
     }
 
     @Override
@@ -117,12 +121,7 @@ public class Woof extends JavaPlugin {
         saveConfig();
 
         // Loading
-        barkChance = config.getDouble("ChanceOfBark");
-        delay = config.getInt("Delay");
-        variation = config.getInt("TimeVariation");
-        volume = (float) config.getDouble("Volume");
-        pitchOffset = (float) config.getDouble("PitchOffset");
-        phases = config.getIntegerList("Phases");
+        loadConfigVariables(config);
 
         setTask();
         getLogger().info("Howlers Is Ready");
