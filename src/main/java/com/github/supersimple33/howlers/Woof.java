@@ -1,6 +1,5 @@
 package com.github.supersimple33.howlers;
 
-import java.util.Arrays;
 import java.util.List;
 import org.bukkit.Server;
 import org.bukkit.Sound;
@@ -13,10 +12,11 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * This class implemments the main functions of the howlers plugin.
-*/
+ */
 public class Woof extends JavaPlugin {
 
     // Vars
@@ -28,7 +28,7 @@ public class Woof extends JavaPlugin {
     private float pitchOffset;
     private List<Integer> phases;
 
-    // Setup the BukkitRunnable that will be used to play the sound.
+    // Set up the BukkitRunnable that will be used to play the sound.
     @SuppressWarnings("checkstyle:magicnumber")
     private void setTask() {
         // Create runnable
@@ -38,7 +38,7 @@ public class Woof extends JavaPlugin {
             @SuppressWarnings("checkstyle:nestedifdepth")
             public void run() {
                 Server server = getServer();
-                World world = server.getWorlds().get(0);
+                World world = server.getWorlds().getFirst();
                 long time = world.getTime(); // ensure this is the correct world
 
                 // Check that it is nightime
@@ -46,7 +46,7 @@ public class Woof extends JavaPlugin {
                     int days = (int) world.getFullTime() / 24000;
                     int phase = days % 8;
 
-                    // Check for right moon phase and iterate entities
+                    // Check for the right moon phase and iterate entities
                     if (phases.contains(phase)) {
 
                         // Get a list of entities and loop through them
@@ -73,7 +73,7 @@ public class Woof extends JavaPlugin {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         // Check for permissions and that the command is correct
         if (command.getName().equalsIgnoreCase("hwreload")) {
 
@@ -110,9 +110,9 @@ public class Woof extends JavaPlugin {
         config.addDefault("TimeVariation", 401); // max amount of random time to add between events
         config.addDefault("Volume", 2.0); // volume of each howl
         config.addDefault("PitchOffset", 0.2);
-        config.addDefault("Phases", Arrays.asList(new Integer(0))); // which moon phases to play on
+        config.addDefault("Phases", List.of(0)); // which moon phases to play on
 
-        // Save/Setup the config
+        // Save / Set up the config
         config.options().copyDefaults(true);
         saveConfig();
 
