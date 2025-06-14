@@ -1,5 +1,0 @@
-<?xml version="1.0"?>
-
-<module name="Checker">
-  <module name="SuppressWarningsFilter" />
-</module>
