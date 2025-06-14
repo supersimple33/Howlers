@@ -15,7 +15,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * This class implemments the main functions of the howlers plugin.
+ * This class implements the main functions of the howlers plugin.
  */
 public class Woof extends JavaPlugin {
 
@@ -41,7 +41,7 @@ public class Woof extends JavaPlugin {
                 World world = server.getWorlds().getFirst();
                 long time = world.getTime(); // ensure this is the correct world
 
-                // Check that it is nightime
+                // Check that it is nighttime
                 if (time > 12300 && time < 23850) {
                     int days = (int) world.getFullTime() / 24000;
                     int phase = days % 8;
@@ -54,7 +54,7 @@ public class Woof extends JavaPlugin {
                         for (Entity ent : ents) {
                             // If the entity is a wolf, generate random and play howl sound
                             if (ent.getType() == EntityType.WOLF && Math.random() < barkChance) {
-                                // may need some tunning could also play only to nearby players, refactor for loop
+                                // may need some tuning could also play only to nearby players, refactor for loop
                                 for (Player player : server.getOnlinePlayers()) {
                                     float pitch = 1.0f + pitchOffset - (2 * pitchOffset * (float) Math.random());
                                     player.playSound(ent.getLocation(), Sound.ENTITY_WOLF_HOWL, volume, pitch);
