@@ -27,6 +27,7 @@ public class Woof extends JavaPlugin {
     private float volume;
     private float pitchOffset;
     private List<Integer> phases;
+    private List<String> worldBlacklist;
 
     // Set up the BukkitRunnable that will be used to play the sound.
     @SuppressWarnings("checkstyle:magicnumber")
@@ -38,27 +39,35 @@ public class Woof extends JavaPlugin {
             @SuppressWarnings("checkstyle:nestedifdepth")
             public void run() {
                 Server server = getServer();
-                World world = server.getWorlds().getFirst();
-                long time = world.getTime(); // ensure this is the correct world
+                for (World world : server.getWorlds()) {
+                    // Check if the world is blacklisted
+                    if (worldBlacklist.contains(world.getName())) {
+                        continue; // Skip to the next world if blacklisted
+                    }
 
-                // Check that it is nighttime
-                if (time > 12300 && time < 23850) {
+                    // Check that it is nighttime
+                    long time = world.getTime();
+                    if (time < 12300 || time > 23850) {
+                        continue; // Skip to the next world if not nighttime
+                    }
+
+                    // Check if the moon is a full moon
                     int days = (int) world.getFullTime() / 24000;
                     int phase = days % 8;
 
                     // Check for the right moon phase and iterate entities
-                    if (phases.contains(phase)) {
-
-                        // Get a list of entities and loop through them
-                        List<Entity> ents = world.getEntities();
-                        for (Entity ent : ents) {
-                            // If the entity is a wolf, generate random and play howl sound
-                            if (ent.getType() == EntityType.WOLF && Math.random() < barkChance) {
-                                // may need some tuning could also play only to nearby players, refactor for loop
-                                for (Player player : server.getOnlinePlayers()) {
-                                    float pitch = 1.0f + pitchOffset - (2 * pitchOffset * (float) Math.random());
-                                    player.playSound(ent.getLocation(), Sound.ENTITY_WOLF_HOWL, volume, pitch);
-                                }
+                    if (!phases.contains(phase)) {
+                        continue;
+                    }
+                    // Get a list of entities and loop through them
+                    List<Entity> ents = world.getEntities();
+                    for (Entity ent : ents) {
+                        // If the entity is a wolf, generate random and play howl sound
+                        if (ent.getType() == EntityType.WOLF && Math.random() < barkChance) {
+                            // may need some tuning could also play only to nearby players, refactor for loop
+                            for (Player player : server.getOnlinePlayers()) {
+                                float pitch = 1.0f + pitchOffset - (2 * pitchOffset * (float) Math.random());
+                                player.playSound(ent.getLocation(), Sound.ENTITY_WOLF_HOWL, volume, pitch);
                             }
                         }
                     }
@@ -102,6 +111,7 @@ public class Woof extends JavaPlugin {
         this.volume = (float) config.getDouble("Volume");
         this.pitchOffset = (float) config.getDouble("PitchOffset");
         this.phases = config.getIntegerList("Phases");
+        this.worldBlacklist = config.getStringList("WorldBlacklist");
     }
 
     @Override
@@ -115,6 +125,7 @@ public class Woof extends JavaPlugin {
         config.addDefault("Volume", 2.0); // volume of each howl
         config.addDefault("PitchOffset", 0.2);
         config.addDefault("Phases", List.of(0)); // which moon phases to play on
+        config.addDefault("WorldBlacklist", List.of("world_nether", "world_the_end")); // worlds to not play in
 
         // Save / Set up the config
         config.options().copyDefaults(true);
